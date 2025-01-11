@@ -149,13 +149,8 @@ export const reportController = new Elysia({ prefix: '/reports' })
     // Mendapatkan laporan berdasarkan ID (auth required)
     .get(
         '/:id',
-        async ({ params, headers, jwt }) => {
-            const token = headers?.authorization?.split(" ")[1];
-            const user = await jwt.verify(token);
+        async ({ params }) => {
 
-            if (!user || !user.id) {
-                return { error: 'Unauthorized' };
-            }
 
             const { id } = params;
 
