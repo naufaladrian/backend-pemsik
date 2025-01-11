@@ -8,12 +8,22 @@ import cors from '@elysiajs/cors'
 
 export const elysiaApp = new Elysia({ prefix: '/api' })
     .use(cors({
-        origin: '*', // Allow all origins for development. Change this to your React app's origin in production.
+        origin: '*',
         methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Allow specific HTTP methods
         allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
     }))
     .use(messageController)
+    .use(cors({
+        origin: '*',
+        methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Allow specific HTTP methods
+        allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
+    }))
     .use(authController)
+    .use(cors({
+        origin: '*',
+        methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Allow specific HTTP methods
+        allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
+    }))
     .use(reportController)
     .onError(({ code, error }) => {
         console.log(code);
