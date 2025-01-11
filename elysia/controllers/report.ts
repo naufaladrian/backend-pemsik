@@ -87,7 +87,7 @@ export const reportController = new Elysia({ prefix: '/reports' })
 
             await turso.execute({
                 sql: `
-                INSERT INTO reports (id, user_id, latitude, longitude, description, photo_url, category)
+                INSERT INTO reports (id, user_id, latitude, longitude, description, photo_url, title)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 `,
                 args: [
@@ -97,7 +97,7 @@ export const reportController = new Elysia({ prefix: '/reports' })
                     parseFloat(body.longitude), // Convert to number
                     body.description,
                     uploadResult.secure_url, // Use the URL from the upload result
-                    body.category,
+                    body.title,
                 ],
             });
 
@@ -109,7 +109,7 @@ export const reportController = new Elysia({ prefix: '/reports' })
                 longitude: t.String(),
                 description: t.String(),
                 photo: t.File(),
-                category: t.String(),
+                title: t.String(),
             }),
         }
     )
