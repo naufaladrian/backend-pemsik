@@ -12,10 +12,12 @@ export const elysiaApp = new Elysia({ prefix: '/api' })
         console.log(code)
         return new Response(JSON.stringify({ error: error.toString() }), { status: 500 })
     })
+    .use(cors())
     .use(authController).onError(({ code, error }) => {
         console.log(code)
         return new Response(JSON.stringify({ error: error.toString() }), { status: 500 })
     })
+    .use(cors())
     .use(reportController).onError(({ code, error }) => {
         console.log(code)
         return new Response(JSON.stringify({ error: error.toString() }), { status: 500 })
