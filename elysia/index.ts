@@ -7,21 +7,18 @@ import cors from '@elysiajs/cors'
 
 
 export const elysiaApp = new Elysia({ prefix: '/api' })
-    .use(cors())
-    .use(messageController).onError(({ code, error }) => {
-        console.log(code)
-        return new Response(JSON.stringify({ error: error.toString() }), { status: 500 })
-    })
-    .use(cors())
-    .use(authController).onError(({ code, error }) => {
-        console.log(code)
-        return new Response(JSON.stringify({ error: error.toString() }), { status: 500 })
-    })
-    .use(cors())
-    .use(reportController).onError(({ code, error }) => {
-        console.log(code)
-        return new Response(JSON.stringify({ error: error.toString() }), { status: 500 })
-    })
+    .use(cors({
+        origin: '*', // Allow all origins for development. Change this to your React app's origin in production.
+        methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Allow specific HTTP methods
+        allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
+    }))
+    .use(messageController)
+    .use(authController)
+    .use(reportController)
+    .onError(({ code, error }) => {
+        console.log(code);
+        return new Response(JSON.stringify({ error: error.toString() }), { status: 500 });
+    });
 
 
 
