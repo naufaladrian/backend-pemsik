@@ -168,6 +168,81 @@ export const reportController = new Elysia({ prefix: '/reports' })
             return report; // Mengembalikan laporan berdasarkan ID
         }
     )
+    // Memperbarui laporan berdasarkan ID (auth required)
+    .patch(
+        '/:id',
+        async ({ params, headers, body, jwt }) => {
+            const token = headers?.authorization?.split(" ")[1];
+            const user = await jwt.verify(token);
+
+            if (!user || !user.id) {
+                return { error: 'Unauthorized' };
+            }
+
+            const { id } = params;
+            const { latitude, longitude, description, photo, title, status } = body;
+
+            let photoUrl;
+
+            if (photo) {
+                // Convert Blob to Buffer
+                const arrayBuffer = await photo.arrayBuffer();
+                const fileBuffer = Buffer.from(arrayBuffer);
+
+                const uploadResult: UploadApiResponse = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        options,
+                        (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
+                            if (error) return reject(error);
+                            if (result) resolve(result);
+                        }
+                    );
+                    uploadStream.end(fileBuffer);
+                });
+
+                photoUrl = uploadResult.secure_url;
+            }
+
+            const updateArgs = [
+                latitude ? parseFloat(latitude) : undefined,
+                longitude ? parseFloat(longitude) : undefined,
+                description,
+                photoUrl,
+                title,
+                status,
+                id
+            ].filter(arg => arg !== undefined);
+
+            const updateSql = `
+                UPDATE reports
+                SET
+                    ${latitude ? 'latitude = ?,' : ''}
+                    ${longitude ? 'longitude = ?,' : ''}
+                    ${description ? 'description = ?,' : ''}
+                    ${photoUrl ? 'photo_url = ?,' : ''}
+                    ${title ? 'title = ?,' : ''}
+                    ${status ? 'status = ?,' : ''}
+                WHERE id = ?
+            `.replace(/,\s*WHERE/, ' WHERE'); // Remove trailing comma before WHERE
+
+            await turso.execute({
+                sql: updateSql,
+                args: updateArgs,
+            });
+
+            return { success: true };
+        },
+        {
+            body: t.Object({
+                latitude: t.Optional(t.String()),
+                longitude: t.Optional(t.String()),
+                description: t.Optional(t.String()),
+                photo: t.Optional(t.File()),
+                title: t.Optional(t.String()),
+                status: t.Optional(t.String()),
+            }),
+        }
+    )
 
     // Menghapus laporan berdasarkan ID (auth required)
     .delete(
